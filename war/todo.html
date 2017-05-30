@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TO DO LIST</title>
+
+<style>
+h2{
+text-align:center;
+background-color: #808080;
+color:white;
+}
+.list li
+{
+	padding: 5px;
+} 
+input#checkbox {
+    width: 20px;
+    float:left;
+    height: 42px;
+}
+span.displayText {
+    display: inline-block;
+    height: 40px;
+    line-height: 47px;
+    width: 200px;
+    float:left;
+}
+span.close {
+    display: inline-block;
+    height: 48px;
+    line-height: 47px;
+    width: 40px;
+    text-align: center;
+    background-color: #f44336;
+}
+li{
+	overflow: auto;
+    height: 100%;
+    width: 100%;
+}
+.hiddentext{
+display: none;
+float: left;
+}
+.userInput{
+	display: none;
+}
+input
+{
+width:40%;
+
+padding:15px;
+font-size:13px;
+
+}
+
+body{
+background-color:pink;}
+.list
+{
+padding: 60px;
+margin:0;
+//background-color:#A9A9A9;
+font-size:15px;
+}
+.close {
+  float: right;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+ 
+  
+  
+  background-color:white;
+}
+
+.close:hover {
+  background-color: #f44336;
+  color: white;
+}
+.active{
+text-decoration: line-through;
+}
+
+ ul li:nth-child(odd) {
+  background: #f9f9f9;
+}
+ul li:nth-child(even)
+{
+background:#D3D3D3;}
+
+</style>
+</head>
+<body>
+<script>
+var userArray = [];
+var previousText = "";
+var deleteText ="";
+
+function guid() {
+	  function s4() {
+	    return Math.floor((1 + Math.random()) * 0x10000)
+	      .toString(16)
+	      .substring(1);
+	  }
+	  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+	    s4() + '-' + s4() + s4() + s4();
+}
+
+function todolist()
+{
+	
+		if(event.keyCode == 13)
+		{
+			
+			var userinput= document.getElementById("todoinput");
+			
+			var todoObj = 
+			{
+				name: userinput.value,
+				id: guid(),
+				isCompleted: false,
+				isDeleted: false
+			}
+			
+			
+			var liTag = createli(todoObj);
+			
+			document.getElementById("list").append(liTag);
+			
+			
+			userArray.push(todoObj);
+			userinput.value = "";
+
+		}
+}
+
+function createli(todoObj)
+{
+	
+
+	var li=document.createElement("li");
+	li.id = todoObj.id;
+	
+	
+	
+	
+	var checkbox= document.createElement("input");
+	checkbox.className="checkbox";
+	checkbox.id="checkbox";
+	checkbox.type = "checkbox";
+	li.appendChild(checkbox);
+	
+	var displaytext= document.createElement("span");
+	displaytext.className="displayText";
+	displaytext.id="displayText";
+	displaytext.innerHTML= todoObj.name;
+	li.appendChild(displaytext);
+	
+	var hiddeninput= document.createElement("input");
+	hiddeninput.className="hiddentext";
+	hiddeninput.id="hiddentext";
+	hiddeninput.value= displaytext.innerText;
+	li.appendChild(hiddeninput);
+	console.info(hiddeninput);
+	
+	var closebutton = document.createElement("SPAN");
+	var txt = document.createTextNode("\u00D7");
+	closebutton.className = "close";
+	closebutton.id = "close";
+	closebutton.appendChild(txt);
+	li.appendChild(closebutton);
+	
+	
+	//userArray.push(userinput);
+	//console.log(userArray);
+	
+	
+	
+	displaytext.addEventListener("click", function(e){
+			previousText = displaytext.innerText;
+			displaytext.style.display = 'none';
+			hiddeninput.style.display = 'block';
+			
+			
+	});
+		
+	hiddeninput.addEventListener("keypress", function(e){
+		var key = e.which || e.keyCode;
+	    if (key === 13) { 
+	    	displaytext.innerHTML = hiddeninput.value;
+	    	
+	    	var index = userArray.indexOf(previousText);
+	    	
+	    	if( index != -1 )
+	    	{
+	    		userArray[index] = hiddeninput.value;
+	    	}
+	    	
+	    	hiddeninput.style.display = 'none';
+	    	displaytext.style.display = 'block';
+	    }
+	});
+		
+	closebutton.addEventListener("click", function(e){
+		var id = closebutton.parentElement.id;
+		var name = closebutton.parentNode.querySelector('.displayText').className;
+		
+		var selectedTodo = searchTodo(id);
+		
+		selectedTodo.isDeleted = true;
+		
+		console.log(selectedTodo);
+		
+		closebutton.parentNode.remove();
+		
+		var index = searchTodoIndex(id);
+		
+		userArray.splice(index, 1);
+		
+			
+	});
+	checkbox.addEventListener("click", function(e){
+	    var id = checkbox.parentElement.id;
+	    var className = checkbox.parentNode.querySelector('.displayText').className;
+
+	    
+	    var selectedTodo = searchTodo(id);
+	    
+	    if( className == "displayText")
+	    {
+	    	selectedTodo.isCompleted = true;
+	    	
+	    } else {
+	    	selectedTodo.isCompleted = false;
+
+	    }
+	    
+	    console.log(selectedTodo);
+		checkbox.parentElement.querySelector('.displayText').classList.toggle("active");
+	});
+	
+	  
+		
+	return li;
+}
+	
+	
+function searchTodo(id)
+{
+	for( var i=0; i<userArray.length; i++)
+	{
+		if( userArray[i].id == id ){
+			
+			return userArray[i];
+		}
+	}
+}
+
+function searchTodoIndex(id)
+{
+	for( var i=0; i<userArray.length; i++)
+	{
+		if( userArray[i].id == id ){
+			
+			return i;
+		}
+	}
+}
+	
+</script>
+<div id="mydiv" class="list">
+  <h2 style="margin:10px" id="heading">To Do List</h2>
+  <input type="text" id="todoinput" placeholder="Enter the new list here" onkeypress="todolist();"/>
+  <ul id="list"> 
+  </ul>
+  
+</div>
+</body>
+</html>
